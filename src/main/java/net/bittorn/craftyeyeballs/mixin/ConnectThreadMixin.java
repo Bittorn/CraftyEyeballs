@@ -19,7 +19,6 @@ import net.minecraft.network.NetworkSide;
 import net.minecraft.network.packet.c2s.login.LoginHelloC2SPacket;
 import net.minecraft.network.state.LoginStates;
 import net.minecraft.text.Text;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -53,11 +52,12 @@ public class ConnectThreadMixin {
     ConnectScreen field_2416;
 
     @Final
-//    @Shadow
-    CookieStorage cookieStorage; // todo find the intermediate field name for cookieStorage
+    @Shadow
+    CookieStorage field_48396;
 
     // here be dragons!
-    // The code below is a modified copy of Mojang's connection thread implementation.
+    // The code below is a modified copy of Mojang's connection thread implementation for 1.20.4.
+    // This code should work for other versions, but might not! WHO CARES!
 
     /**
      * @author NoahvdAa
@@ -165,8 +165,8 @@ public class ConnectThreadMixin {
                             LoginStates.C2S,
                             LoginStates.S2C,
                             new ClientLoginNetworkHandler(
-                                    field_2416.connection, field_33738, field_40415, field_2416.parent, false, null, field_2416::setStatus, cookieStorage
-                            ), cookieStorage != null
+                                    field_2416.connection, field_33738, field_40415, field_2416.parent, false, null, field_2416::setStatus, field_48396
+                            ), field_48396 != null
                     );
             connection.send(new LoginHelloC2SPacket(field_33738.getSession().getUsername(), field_33738.getSession().getUuidOrNull()));
         } catch (Exception var9) {
