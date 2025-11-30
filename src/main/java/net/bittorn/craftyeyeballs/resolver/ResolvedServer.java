@@ -1,4 +1,4 @@
-package me.noahvdaa.craftyeyeballs.resolver;
+package net.bittorn.craftyeyeballs.resolver;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

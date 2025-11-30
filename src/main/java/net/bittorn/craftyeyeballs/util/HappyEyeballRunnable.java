@@ -1,4 +1,4 @@
-package me.noahvdaa.craftyeyeballs.util;
+package net.bittorn.craftyeyeballs.util;
 
 import java.net.InetSocketAddress;
 

@@ -1,22 +1,25 @@
-package me.noahvdaa.craftyeyeballs.mixin;
+package net.bittorn.craftyeyeballs.mixin;
 
 import com.mojang.datafixers.util.Pair;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ConnectTimeoutException;
-import me.noahvdaa.craftyeyeballs.CraftyEyeballs;
-import me.noahvdaa.craftyeyeballs.resolver.CraftyEyeballsResolver;
-import me.noahvdaa.craftyeyeballs.resolver.ResolvedServer;
+import net.bittorn.craftyeyeballs.CraftyEyeballs;
+import net.bittorn.craftyeyeballs.resolver.CraftyEyeballsResolver;
+import net.bittorn.craftyeyeballs.resolver.ResolvedServer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.network.ClientLoginNetworkHandler;
+import net.minecraft.client.network.CookieStorage;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.resource.server.ServerResourcePackManager;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.NetworkSide;
 import net.minecraft.network.packet.c2s.login.LoginHelloC2SPacket;
+import net.minecraft.network.state.LoginStates;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -49,6 +52,10 @@ public class ConnectThreadMixin {
     @Shadow
     ConnectScreen field_2416;
 
+    @Final
+//    @Shadow
+    CookieStorage cookieStorage; // todo find the intermediate field name for cookieStorage
+
     // here be dragons!
     // The code below is a modified copy of Mojang's connection thread implementation.
 
@@ -68,10 +75,10 @@ public class ConnectThreadMixin {
                     .map((c) -> new InetSocketAddress(c, resolved.port())).toList();
             if (field_2416.connectingCancelled) return;
 
-            if (candidates.size() == 0) {
+            if (candidates.isEmpty()) {
                 field_33738.execute(
                         () -> field_33738.setScreen(
-                                new DisconnectedScreen(field_2416.parent, field_2416.failureErrorMessage, ConnectScreen.BLOCKED_HOST_TEXT)
+                                new DisconnectedScreen(field_2416.parent, field_2416.failureErrorMessage, ConnectScreen.UNKNOWN_HOST_TEXT) // may not be correct but idc
                         )
                 );
                 return;
@@ -102,7 +109,7 @@ public class ConnectThreadMixin {
                         }
 
                         synchronized (futures) {
-                            if (futures.size() == 0) return;
+                            if (futures.isEmpty()) return;
                             CraftyEyeballs.LOGGER.info("Fastest to respond was " + candidate + "!");
                             for (Future<?> future : futures) {
                                 if (future == promise) continue;
@@ -149,15 +156,19 @@ public class ConnectThreadMixin {
                         .init(clientConnection, field_40415 != null ? toAcceptanceStatus(field_40415.getResourcePackPolicy()) : ServerResourcePackManager.AcceptanceStatus.PENDING);
             }
 
-            field_2416.connection
+            ClientConnection connection = field_2416.connection;
+            assert connection != null;
+            connection
                     .connect(
                             inetSocketAddress.getHostName(),
                             inetSocketAddress.getPort(),
+                            LoginStates.C2S,
+                            LoginStates.S2C,
                             new ClientLoginNetworkHandler(
-                                    field_2416.connection, field_33738, field_40415, field_2416.parent, false, null, field_2416::setStatus
-                            )
+                                    field_2416.connection, field_33738, field_40415, field_2416.parent, false, null, field_2416::setStatus, cookieStorage
+                            ), cookieStorage != null
                     );
-            field_2416.connection.send(new LoginHelloC2SPacket(field_33738.getSession().getUsername(), field_33738.getSession().getUuidOrNull()));
+            connection.send(new LoginHelloC2SPacket(field_33738.getSession().getUsername(), field_33738.getSession().getUuidOrNull()));
         } catch (Exception var9) {
             if (field_2416.connectingCancelled) return;
 

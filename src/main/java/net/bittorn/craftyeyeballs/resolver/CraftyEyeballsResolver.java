@@ -1,4 +1,4 @@
-package me.noahvdaa.craftyeyeballs.resolver;
+package net.bittorn.craftyeyeballs.resolver;
 
 import com.google.common.net.InetAddresses;
 import net.minecraft.client.network.Address;

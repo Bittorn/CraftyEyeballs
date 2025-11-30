@@ -1,4 +1,4 @@
-package me.noahvdaa.craftyeyeballs;
+package net.bittorn.craftyeyeballs;
 
 import net.fabricmc.api.ClientModInitializer;
 import org.slf4j.Logger;
