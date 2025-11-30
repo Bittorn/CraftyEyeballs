@@ -4,6 +4,8 @@
 
 # CraftyEyeballs
 
+<b>This is a fork of the original 1.20.4 mod by [NoahvdAa](https://github.com/NoahvdAa/CraftyEyeballs)</b>
+
 It's been more than ten years since the world has run out of IPv4 addresses and internet providers are finally starting
 to offer full IPv6. While the transition is progressing painfully slowly, progress is being made and more and more
 services are reachable over just IPv6 every day. Minecraft servers, however, are still stuck on IPv4.
@@ -31,7 +33,7 @@ IPv4 address. This can cause multiple people, even in separate households, to sh
 moderating for ban evasion and the usage of alternate accounts, this can cause issues. With IPv6, every end user
 (household) gets its own subnet, preventing the issues shared IPs can bring.
 
-### But almost no servers support IPv6!
+### But almost no servers support IPv6
 
 That is true, but it's also a bit of a chicken-and-egg problem. Servers don't bother implementing IPv6 because Mojang's
 implementation prefers IPV4. If more clients start using a proper IPv6 implementation, servers will have more incentive
